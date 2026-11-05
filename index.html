@@ -894,7 +894,7 @@
           <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
             <div>
               <h3 class="text-base sm:text-lg font-black uppercase tracking-wider text-white">Đánh Số Trận Thi Đấu Theo Sân</h3>
-              <p class="text-[11px] text-slate-400">Đảm bảo các VĐV có thời gian nghỉ đồng đều nhau nhất</p>
+              <p class="text-[11px] text-slate-400">Hoàn thành từng vòng từ ngoài vào trong theo thứ tự từng hạng cân trên sân</p>
             </div>
             <button id="closeScheduleModalBtn" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 cursor-pointer">✕</button>
           </div>
@@ -4551,7 +4551,6 @@
 
       const maxRounds = Math.max(...selectedCats.map(c => Math.log2(c.size)));
       for (let stageFromFinal = maxRounds - 1; stageFromFinal >= 0; stageFromFinal--) {
-        const catQueues = [];
         selectedCats.forEach(cat => {
           const totalRounds = Math.log2(cat.size);
           const rIndex = totalRounds - 1 - stageFromFinal;
@@ -4561,22 +4560,14 @@
             if (stageFromFinal === 0 && cat.hasThirdPlaceMatch && cat.size >= 4) {
               matchesInRound.push(`r${rIndex}-m1`);
             }
-            for (let m = 0; m < numMatches; m++) matchesInRound.push(`r${rIndex}-m${m}`);
-            catQueues.push({ cat, matches: matchesInRound });
+            for (let m = 0; m < numMatches; m++) {
+              matchesInRound.push(`r${rIndex}-m${m}`);
+            }
+            matchesInRound.forEach(matchId => {
+              cat.matchNumbers[matchId] = currentMatchNum++;
+            });
           }
         });
-
-        let hasRemaining = true, pointer = 0;
-        while (hasRemaining) {
-          hasRemaining = false;
-          for (let q of catQueues) {
-            if (pointer < q.matches.length) {
-              q.cat.matchNumbers[q.matches[pointer]] = currentMatchNum++;
-              hasRemaining = true;
-            }
-          }
-          pointer++;
-        }
       }
 
       selectedCats.forEach(cat => saveOneCategoryToFirebase(cat, true));
